@@ -35,3 +35,13 @@ reporting_status: complete
 sort: ''
 standalone: false
 tags: []
+
+# progress measure configs
+base_year: ''
+#progress_thresholds:
+#  - high: 0.95
+#  - med: 0.6
+#  - low: 0
+target: 0
+target_year: 2030
+direction: negative
