@@ -30,3 +30,8 @@ reporting_status: notstarted
 sort: ''
 standalone: false
 tags: []
+# progress measure configs
+target: 7.25
+target_year: 2030
+base_year: 2015
+direction: negative

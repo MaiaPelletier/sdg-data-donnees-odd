@@ -23,8 +23,31 @@ def read_indicator_config(indicator):
     return(config)
 
 
-def methodology_1():
+def methodology_1(data, direction, t, t_0, x=0.01, y=0, z=-0.01):
     print("Running methodology 1")
+
+
+    current_value = data.Value[data.Year == t].values[0]
+    print('current value is ' + str(current_value))
+    base_value = data.Value[data.Year == t_0].values[0]
+    print('base value is ' + str(base_value))
+
+    cagr_o = ( (current_value / base_value) ** (1 / (t - t_0)) ) - 1
+    print('observed growth is ' + str(cagr_o))
+
+    if direction=="negative":
+        cagr_o = -1*cagr_o
+
+    if cagr_o > x:
+        return "Significant progress"
+    elif y < cagr_o <= x:
+        return "Moderate progress"
+    elif z <= cagr_o <= y:
+        return "Moderate deterioration"
+    elif cagr_o < z:
+        return "Deterioration"
+    else:
+        return "Error"
 
 
 def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0):
@@ -49,42 +72,68 @@ def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0):
     ratio = cagr_o / cagr_r
     print('growth ratio is ' + str(ratio))
 
+    if ratio >= x:
+        return "Significant progress"
+    elif y <= ratio < x:
+        return "Moderate progress"
+    elif z <= ratio < y:
+        return "Insufficient progress"
+    elif ratio < z:
+        return "Deterioration"
+    else:
+        return "Error"
+
 
 def measure_indicator_progress(indicator, base_year=2015, target_year=2030, direction='negative'):
 
     data = read_indicator_data(indicator)
     config = read_indicator_config(indicator)
 
-    ## get configs from indicator config file ##
-    target = float(config['target'])
-    if target == 0:
-        target = 0.001
+    if 'target' in config.keys():
+        target = float(config['target'])
+        if target == 0:
+            target = 0.001
+    else:
+        target = ''
     print("target is " + str(target))
 
-    # SIMPLIFY THIS WITH ADDING ALL THE PARAMS TO A LIST/DICT AND USE A FOR LOOP #
+    # TODO: SIMPLIFY THIS WITH ADDING ALL THE PARAMS TO A LIST/DICT AND USE A FOR LOOP
+
+    # custom_configs = {'base_year' : '', 'target_year' : '', 'direction' : ''}
+    #
+    # for v in custom_configs.keys():
+    #     print(v)
+    #     if (v in config.keys()) and (str(config[v]) != ''):
+    #         custom_configs[v] = str(config[v])
+    #
+    # print(custom_configs)
+
+
     # if base_year is set in config file, use that instead of default
-    if str(config['base_year']) != '':
+    if ('base_year' in config.keys()) and (str(config['base_year']) != ''):
         base_year = str(config['base_year'])
 
     # if target_year is set in config file, use that instead of default
-    if str(config['target_year']) != '':
+    if ('target_year' in config.keys()) and (str(config['target_year']) != ''):
         target_year = str(config['target_year'])
-    print("target year is " + target_year)
+    print("target year is " + str(target_year))
 
     # if direction is set in config file, use that instead of default
-    if str(config['direction']) != '':
+    if ('direction' in config.keys()) and (str(config['direction']) != ''):
         direction = str(config['direction'])
     print("desired direction of progress is " + direction)
 
-    # Get years from data
+    # get years from data
     years = data["Year"]
 
-    # Set current year to be MAX(Year)
+    # set current year to be MAX(Year)
     current_year = years.max()
     print("current year is " + str(current_year))
 
-    # Check if assigned base year is in data
-    # If not, assign min(Year) to be base year
+    # check if assigned base year is in data
+    # if not, assign min(Year) to be base year
+
+    # TODO: why is this throwing a warning all of a sudden?
     if base_year not in years.values:
         base_year = years.min()
     print('base year is ' + str(base_year))
@@ -93,19 +142,30 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
     if current_year - base_year <= 2:
         return 'Insufficient data to calculate progress'
 
-    ### NEED TO REMOVE ALL LINES BUT TOTALS FROM DATA ###
+    # TODO: i might need to add a config to specify which data point to calculate progress on
+    #   right now we're just assuming the total line but some of the cif indicators don't have totals
 
+    cols = data.columns.values
+    if len(cols) > 2:
+        cols = cols[1:-1]
+        data = data[data[cols].isna().all('columns')]
+        data = data.iloc[:, [0, -1]]
+
+    print(data)
+
+    # TODO: i wouldn't mind getting rid of these floats in the function call
     if target == '':
-        methodology_1()
+        output = methodology_1(data=data, direction=direction, t=float(current_year), t_0=float(base_year))
+        print(output)
     elif isinstance(target, float):
-        # I wouldn't mind getting rid of these floats in the function call
-        methodology_2(data=data, direction=direction, target=float(target), t_tao=float(target_year), t_0=float(base_year), t=float(current_year))
+        output = methodology_2(data=data, direction=direction, target=float(target), t_tao=float(target_year), t_0=float(base_year), t=float(current_year))
+        print(output)
     else:
         print("Error")
 
 
 
-measure_indicator_progress('3-1-1')
+measure_indicator_progress('1-2-1')
 
 
 
