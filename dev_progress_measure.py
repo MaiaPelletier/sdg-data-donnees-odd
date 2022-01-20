@@ -23,7 +23,7 @@ def read_indicator_config(indicator):
     return(config)
 
 
-def methodology_1(data, direction, t, t_0, x=0.01, y=0, z=-0.01):
+def methodology_1(data, direction, t, t_0, x=0.01, y=0.0, z=-0.01):
     print("Running methodology 1")
 
 
@@ -39,18 +39,22 @@ def methodology_1(data, direction, t, t_0, x=0.01, y=0, z=-0.01):
         cagr_o = -1*cagr_o
 
     if cagr_o > x:
+        print(str(cagr_o) + ' growth is greater than ' + str(x))
         return "Significant progress"
     elif y < cagr_o <= x:
+        print(str(cagr_o) + ' growth is greater than ' + str(y))
         return "Moderate progress"
     elif z <= cagr_o <= y:
+        print(str(cagr_o) + ' growth is greater than ' + str(z))
         return "Moderate deterioration"
     elif cagr_o < z:
+        print(str(cagr_o) + ' growth is less than ' + str(z))
         return "Deterioration"
     else:
         return "Error"
 
 
-def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0):
+def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0.0):
     print("Running methodology 2")
 
     current_value = data.Value[data.Year == t].values[0]
@@ -73,12 +77,16 @@ def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0):
     print('growth ratio is ' + str(ratio))
 
     if ratio >= x:
+        print(str(ratio) + ' growth ratio is greater than ' + str(x))
         return "Significant progress"
     elif y <= ratio < x:
+        print(str(cagr_o) + ' growth ratio is greater than ' + str(y))
         return "Moderate progress"
     elif z <= ratio < y:
+        print(str(cagr_o) + ' growth ratio is greater than ' + str(z))
         return "Insufficient progress"
     elif ratio < z:
+        print(str(cagr_o) + ' growth ratio is less than ' + str(z))
         return "Deterioration"
     else:
         return "Error"
@@ -91,11 +99,16 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
 
     if 'target' in config.keys():
         target = float(config['target'])
-        if target == 0:
-            target = 0.001
+    elif 'graph_target_lines' in config.keys():
+        graph_target = config['graph_target_lines'][0]
+        target = float(graph_target['value'])
     else:
         target = ''
+
+    if target == 0:
+        target = 0.001
     print("target is " + str(target))
+
 
     # TODO: SIMPLIFY THIS WITH ADDING ALL THE PARAMS TO A LIST/DICT AND USE A FOR LOOP
 
@@ -122,6 +135,14 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
     if ('direction' in config.keys()) and (str(config['direction']) != ''):
         direction = str(config['direction'])
     print("desired direction of progress is " + direction)
+
+    # TODO: I do *not* like this for the progress thresholds - its ugly and not intuitive
+    #   AND ALSO DOESNT WORK :)
+    # if ('progress_thresholds' in config.keys()) and (len(config['progress_thresholds']) > 0):
+    #     progress_thresholds = {k: v for list_item in config['progress_thresholds'] for (k, v) in list_item.items()}
+    # else:
+    #     progress_thresholds = {'high': 0.95, 'med': 0.6, 'low': 0.0}
+    # print(progress_thresholds)
 
     # get years from data
     years = data["Year"]
@@ -155,6 +176,7 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
 
     # TODO: i wouldn't mind getting rid of these floats in the function call
     if target == '':
+        # , x=float(progress_thresholds['high']), y=float(progress_thresholds['med']), z=float(progress_thresholds['low'])
         output = methodology_1(data=data, direction=direction, t=float(current_year), t_0=float(base_year))
         print(output)
     elif isinstance(target, float):
@@ -164,8 +186,10 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
         print("Error")
 
 
+# TODO: Grab first year if year is in fiscal format (e.g. 3.5.2)
 
-measure_indicator_progress('1-2-1')
+# TODO: it says a negative is greater than 0????????????
+measure_indicator_progress('3-6-1')
 
 
 
