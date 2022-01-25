@@ -34,3 +34,8 @@ reporting_status: complete
 sort: ''
 standalone: false
 tags: []
+target: 25
+progress_thresholds:
+  - high: 0.95
+  - med: 0.6
+  - low: 0

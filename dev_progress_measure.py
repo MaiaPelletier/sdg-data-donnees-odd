@@ -83,20 +83,35 @@ def methodology_2(data, direction, target, t_tao, t_0, t, x=0.95, y=0.6, z=0.0):
         print(str(cagr_o) + ' growth ratio is greater than ' + str(y))
         return "Moderate progress"
     elif z <= ratio < y:
-        print(str(cagr_o) + ' growth ratio is greater than ' + str(z))
+        print(str(ratio) + ' growth ratio is greater than ' + str(z))
         return "Insufficient progress"
     elif ratio < z:
-        print(str(cagr_o) + ' growth ratio is less than ' + str(z))
+        print(str(ratio) + ' growth ratio is less than ' + str(z))
         return "Deterioration"
     else:
         return "Error"
 
 
-def measure_indicator_progress(indicator, base_year=2015, target_year=2030, direction='negative'):
+
+def measure_indicator_progress(indicator):
 
     data = read_indicator_data(indicator)
     config = read_indicator_config(indicator)
 
+    defaults = {'base_year': 2015, 'target_year': 2030, 'direction': 'negative'}  # set defaults
+    config = {key: value for key, value in config.items() if config[key]}         # remove empty/non-configured keys
+
+    # Loop over the defaults & check if they should be changed based on configs
+    for key in defaults.keys():
+        if key not in config.keys():
+            config[key] = defaults[key]
+
+    # set values for base year, target year, and desired direction of progress
+    base_year = config['base_year']
+    target_year = config['target_year']
+    direction = config['direction']
+
+    # get target from configs, if it exists; or set as blank if it doesn't exist
     if 'target' in config.keys():
         target = float(config['target'])
     elif 'graph_target_lines' in config.keys():
@@ -105,39 +120,12 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
     else:
         target = ''
 
+    # if target is 0, set to 0.001
     if target == 0:
         target = 0.001
     print("target is " + str(target))
 
-
-    # TODO: SIMPLIFY THIS WITH ADDING ALL THE PARAMS TO A LIST/DICT AND USE A FOR LOOP
-
-    # custom_configs = {'base_year' : '', 'target_year' : '', 'direction' : ''}
-    #
-    # for v in custom_configs.keys():
-    #     print(v)
-    #     if (v in config.keys()) and (str(config[v]) != ''):
-    #         custom_configs[v] = str(config[v])
-    #
-    # print(custom_configs)
-
-
-    # if base_year is set in config file, use that instead of default
-    if ('base_year' in config.keys()) and (str(config['base_year']) != ''):
-        base_year = str(config['base_year'])
-
-    # if target_year is set in config file, use that instead of default
-    if ('target_year' in config.keys()) and (str(config['target_year']) != ''):
-        target_year = str(config['target_year'])
-    print("target year is " + str(target_year))
-
-    # if direction is set in config file, use that instead of default
-    if ('direction' in config.keys()) and (str(config['direction']) != ''):
-        direction = str(config['direction'])
-    print("desired direction of progress is " + direction)
-
     # TODO: I do *not* like this for the progress thresholds - its ugly and not intuitive
-    #   AND ALSO DOESNT WORK :)
     # if ('progress_thresholds' in config.keys()) and (len(config['progress_thresholds']) > 0):
     #     progress_thresholds = {k: v for list_item in config['progress_thresholds'] for (k, v) in list_item.items()}
     # else:
@@ -188,8 +176,7 @@ def measure_indicator_progress(indicator, base_year=2015, target_year=2030, dire
 
 # TODO: Grab first year if year is in fiscal format (e.g. 3.5.2)
 
-# TODO: it says a negative is greater than 0????????????
-measure_indicator_progress('3-6-1')
+measure_indicator_progress('3-2-1')
 
 
 
