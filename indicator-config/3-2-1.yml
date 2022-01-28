@@ -1,5 +1,5 @@
-﻿composite_breakdown_label: ''
-computation_units: 'Per 1,000 live births'
+composite_breakdown_label: ''
+computation_units: Per 1,000 live births
 copyright: ''
 data_footnote: ''
 data_non_statistical: false
@@ -15,27 +15,28 @@ embedded_feature_title: ''
 embedded_feature_url: ''
 expected_disaggregations: []
 graph_annotations: []
-graph_limits: 
-  - minimum: 0
-  - maximum: 30
+graph_limits:
+- minimum: 0
+- maximum: 30
 graph_stacked_disaggregation: ''
 graph_target_lines:
-  - value: 25
+- value: 25
 graph_title: global_indicators.3-2-1-title
 graph_titles: []
 graph_type: line
 indicator_name: global_indicators.3-2-1-title
-indicator_number: '3.2.1'
-national_geographical_coverage: 'Canada, Province or territory'
+indicator_number: 3.2.1
+national_geographical_coverage: Canada, Province or territory
 page_content: ''
 permalink: ''
 precision: []
+progress_status: target_achieved
+progress_thresholds:
+- high: 0.9
+- med: 0.5
+- low: 0.1
 reporting_status: complete
 sort: ''
 standalone: false
 tags: []
 target: 25
-progress_thresholds:
-  - high: 0.9
-  - med: 0.5
-  - low: 0.1

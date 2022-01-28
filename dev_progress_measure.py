@@ -71,6 +71,19 @@ def progress_threshold_configs(config, method):
 
     return config
 
+def output_configs(indicator, output):
+
+    ind_config_path = 'indicator-config/' + indicator + '.yml'
+
+    with open(ind_config_path, 'r') as stream:
+        raw_config = yaml.safe_load(stream)
+
+    raw_config.update(output)
+
+    with open(ind_config_path, 'w') as file:
+        raw_config = yaml.dump(raw_config, file)
+
+    return raw_config
 
 def methodology_1(data, config):
     print("Running methodology 1")
@@ -178,10 +191,9 @@ def measure_indicator_progress(indicator):
 
     # Check if there is enough data to calculate progress
     if current_year - base_year <= 2:
-        return 'Insufficient data to calculate progress'
+        output = 'Insufficient data to calculate progress'
 
     # TODO: i might need to add a config to specify which data point to calculate progress on
-    #   right now we're just assuming the total line but some of the cif indicators don't have totals
     cols = data.columns.values
     if len(cols) > 2:
         cols = cols[1:-1]
@@ -191,6 +203,7 @@ def measure_indicator_progress(indicator):
     print(data)
 
     # determine which methodology to run
+    # TODO: output target as a config
     if config['target'] == '':
         config = progress_threshold_configs(config, method=1)
         output = methodology_1(data=data, config=config)
@@ -202,7 +215,11 @@ def measure_indicator_progress(indicator):
         print(output)
 
     else:
-        print("Error")
+        output = 'Error'
+
+    output = {'progress_status': output}
+
+
 
 
 # TODO: Grab first year if year is in fiscal format (e.g. 3.5.2)
