@@ -2,6 +2,7 @@
 
 import pandas as pd
 import yaml
+import sys
 
 # Read in indicator data from repo
 # Might be able to use sdg-build helper functions here
@@ -16,26 +17,30 @@ def read_indicator_data(indicator):
 # Read indicator configuration file and get the configs needed for measurement
 def read_indicator_config(indicator):
 
+    # TODO: split this function into 2: one for reading, second for doing the default assignment
+
     ind_config_path = 'indicator-config/' + indicator + '.yml'
 
     with open(ind_config_path, 'r') as stream:
         config = yaml.safe_load(stream)
         print('config is read')
 
-    defaults = {'base_year': 2015, 'target_year': 2030, 'direction': 'negative'}  # set defaults
-    config = {key: value for key, value in config.items() if config[key]}  # remove empty/non-configured keys
+    # TEMP: uncomment code once testing is done
+    # if 'auto_progress_calculation' not in config.keys():
+    #     sys.exit('auto config not in config file')
+    # elif not config['auto_progress_calculation']:
+    #     sys.exit('progress is manual input')
+    # else:
+    #     print('auto progress calculation turned on - proceeding with calculation')
+
+    defaults = {'base_year': 2015, 'target_year': 2030, 'direction': 'negative', 'target': ''}  # set defaults
+    config = {key: value for key, value in config.items() if config[key]}  # remove empty configs
 
     # Loop over the defaults & check if they should be changed based on configs
-    # TODO: I feel like this should use the update() method but i can't figure it out
+    # I feel like this should use the update() method but i can't figure it out yet
     for key in defaults.keys():
         if key not in config.keys():
             config[key] = defaults[key]
-
-    # get target from configs, if it exists; or set as blank if it doesn't exist
-    if 'target' in config.keys():
-        config['target'] = float(config['target'])
-    else:
-        config['target'] = ''
 
     # if target is 0, set to 0.001
     if config['target'] == 0:
@@ -73,13 +78,19 @@ def progress_threshold_configs(config, method):
 
 def output_configs(indicator, output):
 
+    # TODO: figure out how to get weird of those start file characters
+
     ind_config_path = 'indicator-config/' + indicator + '.yml'
 
+    # open the indicator-config file and read yaml from it
     with open(ind_config_path, 'r') as stream:
         raw_config = yaml.safe_load(stream)
 
-    raw_config.update(output)
+    # update the indicator configs
+    progress_output = {'progress_measure': output}
+    raw_config.update(progress_output)
 
+    # write the updated indicator configs to the file
     with open(ind_config_path, 'w') as file:
         raw_config = yaml.dump(raw_config, file)
 
@@ -169,38 +180,46 @@ def methodology_2(data, config):
     else:
         return "Error"
 
+def temp_testing_progress_calc():
+    print('temp')
 
 def measure_indicator_progress(indicator):
 
     data = read_indicator_data(indicator)      # read indicator data
-    config = read_indicator_config(indicator)  # read configations
+    config = read_indicator_config(indicator)  # read configurations
     print(config)
 
-    years = data["Year"]              # get years from data
-    base_year = config['base_year']   # set base year value
-    current_year = float(years.max()) # set current year to be MAX(Year)
+    # if config['override']:
+    #     sys.exit('Progress measure manually overridden')
+
+    # TODO: i might need to add a config to specify which data point to calculate progress on
+    # get just the aggregate data
+    cols = data.columns.values
+    if len(cols) > 2:
+        cols = cols[1:-1]
+        data = data[data[cols].isna().all('columns')]
+        data = data.iloc[:, [0, -1]]
+    print(data)
+
+    years = data["Year"]                     # get years from data
+    base_year = float(config['base_year'])   # set base year value
+    current_year = float(years.max())        # set current year to be MAX(Year)
     print("current year is " + str(current_year))
     config.update({'current_year': current_year})
 
     # check if assigned base year is in data
     # if not, assign min(Year) to be base year
-    # TODO: why is this throwing a warning all of a sudden?
+    # TODO: this assigns a new value to base year but doesn't change it in the config so it doesn't carry over to the methodology
     if base_year not in years.values:
         base_year = years.min()
     print('base year is ' + str(base_year))
 
     # Check if there is enough data to calculate progress
     if current_year - base_year <= 2:
-        output = 'Insufficient data to calculate progress'
+        output_configs(indicator, 'Insufficient data to calculate progress')
+        print('exiting execution')
+        sys.exit()
 
-    # TODO: i might need to add a config to specify which data point to calculate progress on
-    cols = data.columns.values
-    if len(cols) > 2:
-        cols = cols[1:-1]
-        data = data[data[cols].isna().all('columns')]
-        data = data.iloc[:, [0, -1]]
-
-    print(data)
 
     # determine which methodology to run
     # TODO: output target as a config
@@ -217,13 +236,12 @@ def measure_indicator_progress(indicator):
     else:
         output = 'Error'
 
-    output = {'progress_status': output}
+    output_configs(indicator, output)
 
 
 
 
-# TODO: Grab first year if year is in fiscal format (e.g. 3.5.2)
-measure_indicator_progress('3-2-1')
+measure_indicator_progress('1-2-1')
 
 
 

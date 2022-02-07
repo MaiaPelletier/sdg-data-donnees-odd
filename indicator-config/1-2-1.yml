@@ -1,4 +1,5 @@
-﻿composite_breakdown_label: ''
+auto_progress_calculation: true
+base_year: 2015
 computation_units: ''
 copyright: ''
 data_footnote: ''
@@ -8,6 +9,7 @@ data_notice_heading: ''
 data_notice_text: ''
 data_show_map: false
 data_start_values: []
+direction: negative
 embedded_feature_footer: ''
 embedded_feature_html: ''
 embedded_feature_tab_title: ''
@@ -21,22 +23,19 @@ graph_title: global_indicators.1-2-1-title
 graph_titles: []
 graph_type: line
 indicator_name: global_indicators.1-2-1-title
-indicator_number: '1.2.1'
+indicator_number: 1.2.1
 national_geographical_coverage: ''
 page_content: ''
 permalink: ''
 precision: []
+progress_measure: Significant progress
+progress_thresholds:
+- high: 0.9
+- med: 0.5
+- low: 0.1
 reporting_status: notstarted
 sort: ''
 standalone: false
 tags: []
-# progress measure configs
 target: 7.25
 target_year: 2030
-base_year: 2015
-direction: negative
-progress_thresholds:
-  - high: 0.9
-  - med: 0.5
-  - low: 0.1
-

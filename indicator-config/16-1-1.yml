@@ -1,19 +1,27 @@
-﻿composite_breakdown_label: ''
-computation_units: ''
+computation_units: Rate per 100,000 population
 copyright: ''
 data_footnote: ''
 data_non_statistical: false
 data_notice_class: ''
 data_notice_heading: ''
 data_notice_text: ''
-data_show_map: false
-data_start_values: []
+data_show_map: true
+data_start_values:
+- field: Geography
+  value: Canada
+- field: Gender
+  value: All genders
+- field: Indigenous identity
+  value: Total
 embedded_feature_footer: ''
 embedded_feature_html: ''
 embedded_feature_tab_title: ''
 embedded_feature_title: ''
 embedded_feature_url: ''
-expected_disaggregations: []
+expected_disaggregations:
+- Geography
+- Gender
+- Indigenous identity
 graph_annotations: []
 graph_limits: []
 graph_stacked_disaggregation: ''
@@ -21,12 +29,13 @@ graph_title: global_indicators.16-1-1-title
 graph_titles: []
 graph_type: line
 indicator_name: global_indicators.16-1-1-title
-indicator_number: '16.1.1'
-national_geographical_coverage: ''
+indicator_number: 16.1.1
+national_geographical_coverage: Canada, Province or territory
 page_content: ''
 permalink: ''
 precision: []
-reporting_status: notstarted
+reporting_status: complete
 sort: ''
 standalone: false
 tags: []
+"\xEF\xBB\xBFcomposite_breakdown_label": ''
