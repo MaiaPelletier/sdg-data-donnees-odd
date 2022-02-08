@@ -1,4 +1,3 @@
-# Start bones and flow of code
 
 import pandas as pd
 import yaml
@@ -76,6 +75,7 @@ def progress_threshold_configs(config, method):
 
     return config
 
+
 def output_configs(indicator, output):
 
     # TODO: figure out how to get weird of those start file characters
@@ -95,6 +95,7 @@ def output_configs(indicator, output):
         raw_config = yaml.dump(raw_config, file)
 
     return raw_config
+
 
 def methodology_1(data, config):
     print("Running methodology 1")
@@ -131,7 +132,6 @@ def methodology_1(data, config):
         return "Deterioration"
     else:
         return "Error"
-
 
 def methodology_2(data, config):
     print("Running methodology 2")
@@ -183,6 +183,7 @@ def methodology_2(data, config):
 def temp_testing_progress_calc():
     print('temp')
 
+
 def measure_indicator_progress(indicator):
 
     data = read_indicator_data(indicator)      # read indicator data
@@ -201,17 +202,15 @@ def measure_indicator_progress(indicator):
         data = data.iloc[:, [0, -1]]
     print(data)
 
-    years = data["Year"]                     # get years from data
-    base_year = float(config['base_year'])   # set base year value
-    current_year = float(years.max())        # set current year to be MAX(Year)
+    years = data["Year"]                          # get years from data
+    current_year = float(years.max())             # set current year to be MAX(Year)
     print("current year is " + str(current_year))
-    config.update({'current_year': current_year})
+    config.update({'current_year': current_year}) # add current year to configs
 
-    # check if assigned base year is in data
-    # if not, assign min(Year) to be base year
-    # TODO: this assigns a new value to base year but doesn't change it in the config so it doesn't carry over to the methodology
-    if base_year not in years.values:
-        base_year = years.min()
+
+    if config['base_year'] not in years.values:          # check if assigned base year is in data
+        config['base_year'] = years[years > 2015].min()  # if not, assign MIN(Year) to be base year
+    base_year = float(config['base_year'])               # set base year value
     print('base year is ' + str(base_year))
 
     # Check if there is enough data to calculate progress
@@ -222,7 +221,6 @@ def measure_indicator_progress(indicator):
 
 
     # determine which methodology to run
-    # TODO: output target as a config
     if config['target'] == '':
         config = progress_threshold_configs(config, method=1)
         output = methodology_1(data=data, config=config)
@@ -241,7 +239,7 @@ def measure_indicator_progress(indicator):
 
 
 
-measure_indicator_progress('1-2-1')
+measure_indicator_progress('3-1-1')
 
 
 
