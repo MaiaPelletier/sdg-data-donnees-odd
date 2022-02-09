@@ -24,6 +24,8 @@ def read_indicator_config(indicator):
         config = yaml.safe_load(stream)
         print('config is read')
 
+    print(config)
+
     # TEMP: uncomment code once testing is done
     # if 'auto_progress_calculation' not in config.keys():
     #     sys.exit('auto config not in config file')
@@ -33,7 +35,8 @@ def read_indicator_config(indicator):
     #     print('auto progress calculation turned on - proceeding with calculation')
 
     defaults = {'base_year': 2015, 'target_year': 2030, 'direction': 'negative', 'target': ''}  # set defaults
-    config = {key: value for key, value in config.items() if config[key]}  # remove empty configs
+    # TODO: Make it so that 0 values don't get removed
+    #config = {key: value for key, value in config.items() if config[key]}  # remove empty configs
 
     # Loop over the defaults & check if they should be changed based on configs
     # I feel like this should use the update() method but i can't figure it out yet
@@ -169,7 +172,7 @@ def methodology_2(data, config):
         print(str(ratio) + ' growth ratio is greater than ' + str(x))
         return "Significant progress"
     elif y <= ratio < x:
-        print(str(cagr_o) + ' growth ratio is greater than ' + str(y))
+        print(str(ratio) + ' growth ratio is greater than ' + str(y))
         return "Moderate progress"
     elif z <= ratio < y:
         print(str(ratio) + ' growth ratio is greater than ' + str(z))
@@ -190,23 +193,26 @@ def measure_indicator_progress(indicator):
     config = read_indicator_config(indicator)  # read configurations
     print(config)
 
-    # if config['override']:
-    #     sys.exit('Progress measure manually overridden')
+    # check if the year value contains more than 4 digits (indicating a range of years)
+    if (data['Year'].astype(str).str.len() > 4).any():
+        print('unusual year column. taking first 4 digits')
+        data['Year'] = data['Year'].astype(str).str.slice(0, 4).astype(int)  # take the first year in the range
 
     # TODO: i might need to add a config to specify which data point to calculate progress on
     # get just the aggregate data
     cols = data.columns.values
     if len(cols) > 2:
+        print('data contains disaggregation. taking only aggregate data.')
         cols = cols[1:-1]
         data = data[data[cols].isna().all('columns')]
         data = data.iloc[:, [0, -1]]
+    data = data[data["Value"].notna()]
     print(data)
 
     years = data["Year"]                          # get years from data
     current_year = float(years.max())             # set current year to be MAX(Year)
     print("current year is " + str(current_year))
     config.update({'current_year': current_year}) # add current year to configs
-
 
     if config['base_year'] not in years.values:          # check if assigned base year is in data
         config['base_year'] = years[years > 2015].min()  # if not, assign MIN(Year) to be base year
@@ -216,7 +222,7 @@ def measure_indicator_progress(indicator):
     # Check if there is enough data to calculate progress
     if current_year - base_year <= 2:
         output_configs(indicator, 'Insufficient data to calculate progress')
-        print('exiting execution')
+        print('Insufficient data to calculate progress')
         sys.exit()
 
 
@@ -226,20 +232,15 @@ def measure_indicator_progress(indicator):
         output = methodology_1(data=data, config=config)
         print(output)
 
-    elif isinstance(config['target'], float):
+    else:
         config = progress_threshold_configs(config, method=2)
         output = methodology_2(data=data, config=config)
         print(output)
 
-    else:
-        output = 'Error'
-
     output_configs(indicator, output)
 
 
-
-
-measure_indicator_progress('3-1-1')
+measure_indicator_progress('1-2-1')
 
 
 
